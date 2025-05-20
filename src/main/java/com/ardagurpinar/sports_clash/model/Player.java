@@ -30,6 +30,9 @@ public class Player {
     private char lastLetter;
 
     @Column(nullable = false)
+    private SportsType sports;
+
+    @Column(nullable = false)
     private String nationality;
 
     @Column(name = "created_at", nullable = false, updatable = false)

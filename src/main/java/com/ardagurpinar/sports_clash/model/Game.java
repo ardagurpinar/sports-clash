@@ -19,6 +19,9 @@ public class Game {
     @Column(nullable = false)
     private GameStatus status;
 
+    @Column(nullable = false)
+    private SportsType sports;
+
     @Column(name = "time_per_turn", nullable = false)
     private int timePerTurn;
 

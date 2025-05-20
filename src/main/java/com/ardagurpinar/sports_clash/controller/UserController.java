@@ -2,14 +2,11 @@ package com.ardagurpinar.sports_clash.controller;
 
 import com.ardagurpinar.sports_clash.dto.UserDto;
 import com.ardagurpinar.sports_clash.dto.UserResponse;
-import com.ardagurpinar.sports_clash.model.User;
 import com.ardagurpinar.sports_clash.service.UserService;
-import com.ardagurpinar.sports_clash.service.UserServiceImplementation;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
-import java.util.List;
 
 @RestController
 @RequestMapping("/api/v1/users")
