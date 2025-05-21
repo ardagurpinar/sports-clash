@@ -10,6 +10,19 @@ import java.time.LocalDateTime;
 @Table(name = "players")
 @Data
 public class Player {
+
+    public Player(String firstName, String lastName, SportsType sports, String nationality) {
+        this.firstName = firstName;
+        this.lastName = lastName;
+        this.sports = sports;
+        this.nationality = nationality;
+        this.fullName = firstName + " " + lastName;
+        this.firstLetter = firstName.charAt(0);
+        this.lastLetter = !lastName.isEmpty() ? lastName.charAt(lastName.length() - 1) : firstName.charAt(firstName.length() - 1);
+    }
+
+    public Player() {}
+
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
@@ -38,4 +51,6 @@ public class Player {
     @Column(name = "created_at", nullable = false, updatable = false)
     @CreationTimestamp
     private LocalDateTime createdAt;
+
+
 }
