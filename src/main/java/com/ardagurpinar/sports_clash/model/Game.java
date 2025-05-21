@@ -28,7 +28,7 @@ public class Game {
     @Column(name = "starting_player_name", nullable = false)
     private String startingPlayerName;
 
-    @Column(name = "winner_id", nullable = false)
+    @Column(name = "winner_id")
     private Long winnerId;
 
     @CreationTimestamp

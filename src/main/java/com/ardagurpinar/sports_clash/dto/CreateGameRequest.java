@@ -7,23 +7,10 @@ import lombok.Data;
 import java.time.LocalDateTime;
 
 @Data
-public class GameDto {
-
-    private Long id;
-
+public class CreateGameRequest {
     private GameStatus status;
-
     private SportsType sports;
-
     private int timePerTurn;
-
     private String startingPlayerName;
-
-    private Long winnerId;
-
     private LocalDateTime createdAt;
-
-    private LocalDateTime updatedAt;
-
-    private LocalDateTime endedAt;
 }

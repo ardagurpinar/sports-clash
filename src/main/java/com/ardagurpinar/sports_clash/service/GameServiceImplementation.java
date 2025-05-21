@@ -1,15 +1,21 @@
 package com.ardagurpinar.sports_clash.service;
 
+import com.ardagurpinar.sports_clash.dto.CreateGameRequest;
 import com.ardagurpinar.sports_clash.dto.GameDto;
 import com.ardagurpinar.sports_clash.dto.GameResponse;
+import com.ardagurpinar.sports_clash.dto.UpdateGameRequest;
 import com.ardagurpinar.sports_clash.exception.ResourceNotFoundException;
 import com.ardagurpinar.sports_clash.model.Game;
+import com.ardagurpinar.sports_clash.model.GameStatus;
 import com.ardagurpinar.sports_clash.repository.GameRepository;
 import org.modelmapper.ModelMapper;
 import org.springframework.data.repository.core.RepositoryCreationException;
+import org.springframework.stereotype.Service;
 
+import java.time.LocalDateTime;
 import java.util.List;
 
+@Service
 public class GameServiceImplementation implements GameService{
 
     private final GameRepository gameRepository;
@@ -42,7 +48,7 @@ public class GameServiceImplementation implements GameService{
     }
 
     @Override
-    public GameDto createGame(GameDto gameDto) {
+    public GameDto createGame(CreateGameRequest gameDto) {
         Game game = modelMapper.map(gameDto, Game.class);
         try {
             gameRepository.save(game);
@@ -55,12 +61,22 @@ public class GameServiceImplementation implements GameService{
     }
 
     @Override
-    public GameDto updateGame(GameDto gameDto) {
+    public GameDto updateGame(UpdateGameRequest gameDto, Long id) {
         Game updatedGame = modelMapper.map(gameDto, Game.class);
-        Game gameToBeUpdated = gameRepository.findById(updatedGame.getId())
-                .orElseThrow(() -> new ResourceNotFoundException("Game", "id", updatedGame.getId()));
-        gameToBeUpdated.setGamePlayers(updatedGame.getGamePlayers());
+        Game gameToBeUpdated = gameRepository.findById(id)
+                .orElseThrow(() -> new ResourceNotFoundException("Game", "id", id));
+        gameToBeUpdated.setStatus(updatedGame.getStatus());
         gameToBeUpdated.setMoves(updatedGame.getMoves());
+
+        System.out.println("updatedGame: " + updatedGame);
+        System.out.println(("Game Status Is ABANDONED: " + updatedGame.getStatus().equals(GameStatus.ABANDONED)));
+
+        if (updatedGame.getStatus().equals(GameStatus.COMPLETED) || updatedGame.getStatus().equals(GameStatus.ABANDONED)) {
+            System.out.println("Heere");
+            gameToBeUpdated.setWinnerId(updatedGame.getWinnerId());
+            gameToBeUpdated.setUpdatedAt(LocalDateTime.now());
+            gameToBeUpdated.setEndedAt(LocalDateTime.now());
+        }
         gameRepository.save(gameToBeUpdated);
         return modelMapper.map(gameToBeUpdated, GameDto.class);
     }
