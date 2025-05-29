@@ -1,24 +1,31 @@
 package com.ardagurpinar.sports_clash.model;
 
+import com.ardagurpinar.sports_clash.model.enums.GameStatus;
+import com.ardagurpinar.sports_clash.model.enums.SportsType;
 import jakarta.persistence.*;
+import jakarta.validation.constraints.Min;
 import lombok.Data;
 import org.hibernate.annotations.CreationTimestamp;
 
 import java.time.LocalDateTime;
-import java.util.HashSet;
-import java.util.Set;
+import java.util.*;
 
 @Entity
 @Table(name = "games")
 @Data
 public class Game {
     @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long id;
+    @GeneratedValue(strategy = GenerationType.UUID)
+    private UUID id;
 
+    @Column(name = "game_code", length = 6, nullable = false, unique = true)
+    private String gameCode;
+
+    @Enumerated(EnumType.STRING)
     @Column(nullable = false)
     private GameStatus status;
 
+    @Enumerated(EnumType.STRING)
     @Column(nullable = false)
     private SportsType sports;
 
@@ -29,7 +36,11 @@ public class Game {
     private String startingPlayerName;
 
     @Column(name = "winner_id")
-    private Long winnerId;
+    private UUID winnerId;
+
+    @Column(name = "number_of_players", nullable = false)
+    @Min(2)
+    private int numberOfPlayers;
 
     @CreationTimestamp
     @Column(name = "created_at", nullable = false, updatable = false)
@@ -42,8 +53,8 @@ public class Game {
     private LocalDateTime endedAt;
 
     @OneToMany(mappedBy = "game", cascade = CascadeType.ALL)
-    private Set<GamePlayer> gamePlayers = new HashSet<>();
+    private List<GameUser> gameUsers = new ArrayList<>();
 
     @OneToMany(mappedBy = "game", cascade = CascadeType.ALL)
-    private  Set<Move> moves = new HashSet<>();
+    private List<Turn> turns = new ArrayList<>();
 }

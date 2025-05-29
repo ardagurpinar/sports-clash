@@ -1,29 +1,30 @@
 package com.ardagurpinar.sports_clash.service;
 
-import com.ardagurpinar.sports_clash.dto.CreateGameRequest;
-import com.ardagurpinar.sports_clash.dto.GameDto;
-import com.ardagurpinar.sports_clash.dto.GameResponse;
-import com.ardagurpinar.sports_clash.dto.UpdateGameRequest;
+import com.ardagurpinar.sports_clash.dto.GameDTOs.*;
 import com.ardagurpinar.sports_clash.exception.ResourceNotFoundException;
 import com.ardagurpinar.sports_clash.model.Game;
-import com.ardagurpinar.sports_clash.model.GameStatus;
+import com.ardagurpinar.sports_clash.model.enums.GameStatus;
 import com.ardagurpinar.sports_clash.repository.GameRepository;
+import com.ardagurpinar.sports_clash.repository.UserRepository;
 import org.modelmapper.ModelMapper;
 import org.springframework.data.repository.core.RepositoryCreationException;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
 import java.util.List;
+import java.util.UUID;
 
 @Service
 public class GameServiceImplementation implements GameService{
 
     private final GameRepository gameRepository;
     private final ModelMapper modelMapper;
+    private final UserRepository userRepository;
 
-    public GameServiceImplementation(GameRepository gameRepository, ModelMapper modelMapper) {
+    public GameServiceImplementation(GameRepository gameRepository, ModelMapper modelMapper, UserRepository userRepository) {
         this.gameRepository = gameRepository;
         this.modelMapper = modelMapper;
+        this.userRepository = userRepository;
     }
 
     @Override
@@ -38,7 +39,7 @@ public class GameServiceImplementation implements GameService{
     }
 
     @Override
-    public GameResponse getGameById(Long id) {
+    public GameResponse getGameById(UUID id) {
         Game game = gameRepository.findById(id)
                 .orElseThrow(() -> new ResourceNotFoundException("Game", "id", id));
         GameDto gameDto = modelMapper.map(game, GameDto.class);
@@ -48,8 +49,18 @@ public class GameServiceImplementation implements GameService{
     }
 
     @Override
-    public GameDto createGame(CreateGameRequest gameDto) {
-        Game game = modelMapper.map(gameDto, Game.class);
+    public GameResponse getGameByGameCode(String gameCode) {
+        Game game = gameRepository.findByGameCode(gameCode)
+                .orElseThrow(() -> new ResourceNotFoundException("Game", "gameCode", gameCode));
+        GameDto gameDto = modelMapper.map(game, GameDto.class);
+        GameResponse gameResponse = new GameResponse();
+        gameResponse.setContent(List.of(gameDto));
+        return gameResponse;
+    }
+
+    @Override
+    public GameDto createGame(CreateGameRequest req) {
+        Game game = modelMapper.map(req, Game.class);
         try {
             gameRepository.save(game);
         } catch (Exception e) {
@@ -61,23 +72,41 @@ public class GameServiceImplementation implements GameService{
     }
 
     @Override
-    public GameDto updateGame(UpdateGameRequest gameDto, Long id) {
-        Game updatedGame = modelMapper.map(gameDto, Game.class);
+    public GameDto updateGame(UpdateGameRequest gameDto, UUID id) {
+//        Game updatedGame = modelMapper.map(gameDto, Game.class);
+//        System.out.println("updatedGame: " + updatedGame);
         Game gameToBeUpdated = gameRepository.findById(id)
                 .orElseThrow(() -> new ResourceNotFoundException("Game", "id", id));
-        gameToBeUpdated.setStatus(updatedGame.getStatus());
-        gameToBeUpdated.setMoves(updatedGame.getMoves());
 
-        System.out.println("updatedGame: " + updatedGame);
-        System.out.println(("Game Status Is ABANDONED: " + updatedGame.getStatus().equals(GameStatus.ABANDONED)));
+        gameToBeUpdated.setStatus(gameDto.getStatus());
 
-        if (updatedGame.getStatus().equals(GameStatus.COMPLETED) || updatedGame.getStatus().equals(GameStatus.ABANDONED)) {
-            System.out.println("Heere");
-            gameToBeUpdated.setWinnerId(updatedGame.getWinnerId());
+//        Set<MoveDto> moveDtos = gameDto.getMoves();
+//
+//        for (MoveDto moveDto : moveDtos) {
+//            Move move = new Move();
+//            User user = userRepository.findById(moveDto.getUserId()).orElseThrow();
+//            move.setGame(gameToBeUpdated);
+//            move.setUser(user);
+//            move.setPlayerName(moveDto.getPlayerName());
+//            move.setIsValid(moveDto.getIsValid());
+//            move.setTurnNumber(moveDto.getTurnNumber());
+//            gameToBeUpdated.getMoves().add(move);
+//        }
+
+        //gameToBeUpdated.setMoves(updatedGame.getMoves());
+
+        if (gameDto.getStatus().equals(GameStatus.COMPLETED) || gameDto.getStatus().equals(GameStatus.CANCELLED)) {
+            //gameToBeUpdated.setWinnerId(gameDto.getWinnerId());
             gameToBeUpdated.setUpdatedAt(LocalDateTime.now());
             gameToBeUpdated.setEndedAt(LocalDateTime.now());
         }
         gameRepository.save(gameToBeUpdated);
         return modelMapper.map(gameToBeUpdated, GameDto.class);
+    }
+
+    @Override
+    public GameDto joinGame(UUID userId, JoinGameRequest req) {
+
+        return null;
     }
 }

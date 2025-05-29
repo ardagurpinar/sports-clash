@@ -1,13 +1,14 @@
 package com.ardagurpinar.sports_clash.service;
 
-import com.ardagurpinar.sports_clash.dto.CreateGameRequest;
-import com.ardagurpinar.sports_clash.dto.GameDto;
-import com.ardagurpinar.sports_clash.dto.GameResponse;
-import com.ardagurpinar.sports_clash.dto.UpdateGameRequest;
+import com.ardagurpinar.sports_clash.dto.GameDTOs.*;
+
+import java.util.UUID;
 
 public interface GameService {
     GameResponse getAllGames();
-    GameResponse getGameById(Long id);
+    GameResponse getGameById(UUID id);
+    GameResponse getGameByGameCode(String gameCode);
     GameDto createGame(CreateGameRequest gameDto);
-    GameDto updateGame(UpdateGameRequest gameDto, Long id);
+    GameDto updateGame(UpdateGameRequest gameDto, UUID id);
+    GameDto joinGame(UUID userId, JoinGameRequest req);
 }

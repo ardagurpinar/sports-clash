@@ -1,18 +1,20 @@
 package com.ardagurpinar.sports_clash.model;
 
+import com.ardagurpinar.sports_clash.model.enums.PlayerRole;
 import jakarta.persistence.*;
 import lombok.Data;
 import org.hibernate.annotations.CreationTimestamp;
 
 import java.time.LocalDateTime;
+import java.util.UUID;
 
 @Entity
-@Table(name = "game_players", uniqueConstraints = @UniqueConstraint(columnNames = {"user_id", "game_id"}))
+@Table(name = "game_users", uniqueConstraints = @UniqueConstraint(columnNames = {"user_id", "game_id"}))
 @Data
-public class GamePlayer {
+public class GameUser {
     @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long id;
+    @GeneratedValue(strategy = GenerationType.UUID)
+    private UUID id;
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "user_id", nullable = false)
@@ -21,6 +23,10 @@ public class GamePlayer {
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "game_id", nullable = false)
     private Game game;
+
+    @Enumerated(EnumType.STRING)
+    @Column(name = "role", nullable = false)
+    private PlayerRole role;
 
     @Column(name = "join_order", nullable = false)
     private int joinOrder;

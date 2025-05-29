@@ -1,11 +1,9 @@
-package com.ardagurpinar.sports_clash.dto;
+package com.ardagurpinar.sports_clash.dto.UserDTOs;
 
 import lombok.Data;
 
 @Data
-public class UserDto {
-    private Long id;
+public class CreateUserRequest {
     private String username;
     private String password;
-
 }

@@ -1,37 +1,31 @@
 package com.ardagurpinar.sports_clash.model;
 
+import com.ardagurpinar.sports_clash.model.enums.SportsType;
 import jakarta.persistence.*;
 import lombok.Data;
 import org.hibernate.annotations.CreationTimestamp;
 
 import java.time.LocalDateTime;
+import java.util.UUID;
 
 @Entity
 @Table(name = "players")
 @Data
 public class Player {
 
-    public Player(String firstName, String lastName, SportsType sports, String nationality) {
-        this.firstName = firstName;
-        this.lastName = lastName;
+    public Player(String fullName, SportsType sports, String nationality) {
         this.sports = sports;
         this.nationality = nationality;
-        this.fullName = firstName + " " + lastName;
-        this.firstLetter = firstName.charAt(0);
-        this.lastLetter = !lastName.isEmpty() ? lastName.charAt(lastName.length() - 1) : firstName.charAt(firstName.length() - 1);
+        this.fullName = fullName;
+        this.firstLetter = fullName.charAt(0);
+        this.lastLetter = fullName.charAt(fullName.length() - 1);
     }
 
     public Player() {}
 
     @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long id;
-
-    @Column(name = "first_name", nullable = false)
-    private String firstName;
-
-    @Column(name = "last_name", nullable = false)
-    private String lastName;
+    @GeneratedValue(strategy = GenerationType.UUID)
+    private UUID id;
 
     @Column(name = "full_name", nullable = false)
     private String fullName;
@@ -51,6 +45,5 @@ public class Player {
     @Column(name = "created_at", nullable = false, updatable = false)
     @CreationTimestamp
     private LocalDateTime createdAt;
-
 
 }

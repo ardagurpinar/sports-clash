@@ -1,4 +1,4 @@
-package com.ardagurpinar.sports_clash.dto;
+package com.ardagurpinar.sports_clash.dto.UserDTOs;
 
 import lombok.Data;
 

@@ -1,11 +1,16 @@
 package com.ardagurpinar.sports_clash.controller;
 
-import com.ardagurpinar.sports_clash.dto.UserDto;
-import com.ardagurpinar.sports_clash.dto.UserResponse;
+import com.ardagurpinar.sports_clash.dto.UserDTOs.AuthResponse;
+import com.ardagurpinar.sports_clash.dto.UserDTOs.CreateUserRequest;
+import com.ardagurpinar.sports_clash.dto.UserDTOs.UserDto;
+import com.ardagurpinar.sports_clash.dto.UserDTOs.UserResponse;
 import com.ardagurpinar.sports_clash.service.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+
+import java.util.List;
+import java.util.UUID;
 
 
 @RestController
@@ -19,20 +24,24 @@ public class UserController {
     }
 
     @PostMapping
-    public ResponseEntity<UserDto> registerUser(@RequestBody UserDto userDto) {
-        UserDto newUser = userService.registerUser(userDto);
-        return ResponseEntity.ok(newUser);
+    public ResponseEntity<UserResponse> createUser(@RequestBody CreateUserRequest req) {
+        UserDto userDto = userService.createUser(req);
+        UserResponse response = new UserResponse();
+        response.setContent(List.of(userDto));
+        return ResponseEntity.ok(response);
     }
 
-    @GetMapping
-    public ResponseEntity<UserResponse> getAllUsers() {
-        UserResponse userResponse = userService.getAllUsers();
-        return ResponseEntity.ok(userResponse);
-    }
+//    @GetMapping
+//    public ResponseEntity<UserResponse> getAllUsers() {
+//        UserResponse userResponse = userService.getAllUsers();
+//        return ResponseEntity.ok(userResponse);
+//    }
 
     @GetMapping("/{id}")
-    public ResponseEntity<UserResponse> getUserById(@PathVariable Long id) {
-        UserResponse userResponse = userService.getUserById(id);
+    public ResponseEntity<UserResponse> getUserById(@PathVariable UUID id) {
+        UserDto userDto = userService.getUserById(id);
+        UserResponse userResponse = new UserResponse();
+        userResponse.setContent(List.of(userDto));
         return ResponseEntity.ok(userResponse);
     }
 }

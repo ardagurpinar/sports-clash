@@ -1,14 +1,19 @@
 package com.ardagurpinar.sports_clash.service;
 
-import com.ardagurpinar.sports_clash.dto.UserDto;
-import com.ardagurpinar.sports_clash.dto.UserResponse;
-import com.ardagurpinar.sports_clash.repository.UserRepository;
+import com.ardagurpinar.sports_clash.dto.UserDTOs.AuthResponse;
+import com.ardagurpinar.sports_clash.dto.UserDTOs.CreateUserRequest;
+import com.ardagurpinar.sports_clash.dto.UserDTOs.UserDto;
+import com.ardagurpinar.sports_clash.dto.UserDTOs.UserResponse;
+
+import java.util.List;
+import java.util.UUID;
 
 public interface UserService {
 
-    UserDto registerUser(UserDto userDto);
+    UserDto createUser(CreateUserRequest req);
+    UserDto getUserById(UUID id);
+    UserDto getUserByUsername(String username);
+    List<UserDto> getAllUsers();
+    UserDto touchLastLogin(UUID id);
 
-    UserResponse getAllUsers();
-
-    UserResponse getUserById(Long id);
 }

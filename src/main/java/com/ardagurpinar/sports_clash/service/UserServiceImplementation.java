@@ -1,65 +1,79 @@
 package com.ardagurpinar.sports_clash.service;
 
-import com.ardagurpinar.sports_clash.dto.UserDto;
-import com.ardagurpinar.sports_clash.dto.UserResponse;
+import com.ardagurpinar.sports_clash.dto.UserDTOs.AuthResponse;
+import com.ardagurpinar.sports_clash.dto.UserDTOs.CreateUserRequest;
+import com.ardagurpinar.sports_clash.dto.UserDTOs.UserDto;
+import com.ardagurpinar.sports_clash.dto.UserDTOs.UserResponse;
 import com.ardagurpinar.sports_clash.exception.ResourceNotFoundException;
 import com.ardagurpinar.sports_clash.model.User;
 import com.ardagurpinar.sports_clash.repository.UserRepository;
+import org.springframework.transaction.annotation.Transactional;
 import org.modelmapper.ModelMapper;
-//import org.springframework.security.crypto.factory.PasswordEncoderFactories;
-//import org.springframework.security.crypto.password.PasswordEncoder;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import java.time.LocalDateTime;
 import java.util.List;
+import java.util.UUID;
 
 @Service
+@Transactional
 public class UserServiceImplementation implements UserService {
-    @Autowired
     private final UserRepository userRepository;
-    @Autowired
     private final ModelMapper modelMapper;
+    private final PasswordEncoder passwordEncoder;
 
-    public UserServiceImplementation(UserRepository userRepository, ModelMapper modelMapper) {
+    public UserServiceImplementation(UserRepository userRepository, ModelMapper modelMapper, PasswordEncoder passwordEncoder) {
         this.userRepository = userRepository;
         this.modelMapper = modelMapper;
+        this.passwordEncoder = passwordEncoder;
     }
 
+    @Override
+    public UserDto createUser(CreateUserRequest req) {
+        User user = new User();
+        user.setUsername(req.getUsername());
+        String encodedPassword = passwordEncoder.encode(req.getPassword());
+        user.setPasswordHash(encodedPassword);
+        user.setCreatedAt(LocalDateTime.now());
+        userRepository.save(user);
+
+        UserDto userDto = modelMapper.map(user, UserDto.class);
+        String token = "generated-token" + user.getId();
+        userDto.setToken(token);
+        return userDto;
+    }
 
     @Override
-    public UserDto registerUser(UserDto userDto) {
-        User user = modelMapper.map(userDto, User.class);
-        String passwordHash = userDto.getPassword() + "hashed";
-        user.setPasswordHash(passwordHash);
+    @Transactional(readOnly = true)
+    public UserDto getUserById(UUID id) {
+        User userFromDB = userRepository.findById(id)
+                .orElseThrow(() -> new ResourceNotFoundException("User", "id", id));
+        return modelMapper.map(userFromDB, UserDto.class);
+    }
+
+    @Override
+    @Transactional(readOnly = true)
+    public UserDto getUserByUsername(String username) {
+        User userFromDB = userRepository.findByUsername(username)
+                .orElseThrow(() -> new ResourceNotFoundException("User", "username", username));
+        return modelMapper.map(userFromDB, UserDto.class);
+    }
+
+    @Override
+    public List<UserDto> getAllUsers() {
+        return userRepository.findAllByOrderByTotalPointsDesc().stream()
+                .map(user -> modelMapper.map(user, UserDto.class))
+                .toList();
+    }
+
+    @Override
+    public UserDto touchLastLogin(UUID id) {
+        User user = userRepository.findById(id)
+                .orElseThrow(() -> new ResourceNotFoundException("User", "id", id));
+        user.setLastLogin(LocalDateTime.now());
         userRepository.save(user);
         return modelMapper.map(user, UserDto.class);
     }
-
-    @Override
-    public UserResponse getAllUsers() {
-        List<User> users = userRepository.findAll();
-        System.out.println("users: " + users);
-        List<UserDto> userDtos = users.stream()
-                .map(user -> modelMapper.map(user, UserDto.class))
-                .toList();
-
-        UserResponse userResponse = new UserResponse();
-        userResponse.setContent(userDtos);
-
-        return userResponse;
-    }
-
-    @Override
-    public UserResponse getUserById(Long id) {
-        User userFromDB = userRepository.findById(id)
-                .orElseThrow(() -> new ResourceNotFoundException("User", "id", id));
-        UserDto userDto = modelMapper.map(userFromDB, UserDto.class);
-        UserResponse userResponse = new UserResponse();
-        userResponse.setContent(List.of(userDto));
-        return userResponse;
-    }
-
-//    private PasswordEncoder passwordEncoder() {
-//        return PasswordEncoderFactories.createDelegatingPasswordEncoder();
-//    }
 }
